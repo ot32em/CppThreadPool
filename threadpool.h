@@ -1,6 +1,7 @@
 #include <thread>
 #include <memory>
 #include <vector>
+#include <queue>
 
 template<typename T>
 struct ThreadedQueue
