@@ -2,13 +2,14 @@
 #include <memory>
 #include <vector>
 #include <queue>
+#include <condition_variable>
 
 template<typename T>
 struct ThreadedQueue
 {
     void put(T){ /* TODO */ }
     T get(){ return T(); /* TODO */  }
-    std::condition_variable hasEntry;
+    std::condition_variable entry_coming_;
     std::queue<T> q_;
 };
 
