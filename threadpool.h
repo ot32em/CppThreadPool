@@ -23,7 +23,7 @@ struct ThreadedQueue
     {
         std::unique_lock<std::mutex> lk(m_);
         signal_.wait(lk, [this]() { return !q_.empty() || aborted_; });
-        LK_PRINTF("[queue] thread (%zu) check condition: non empty(): %d OR aborted: %d\n", get_id(), !q_.empty(), aborted_);
+        //LK_PRINTF("[queue] thread (%zu) check condition: non empty(): %d OR aborted: %d\n", get_id(), !q_.empty(), aborted_);
         if (aborted_) { return false; }
         entry = std::move(q_.front());
         q_.pop();
@@ -31,10 +31,10 @@ struct ThreadedQueue
     }
     void abort()
     {
-        LK_PRINTF("[queue] thread (%zu) aborting...\n", get_id());
+        //LK_PRINTF("[queue] thread (%zu) aborting...\n", get_id());
         std::lock_guard<std::mutex> lk(m_);
         aborted_ = true;
-        LK_PRINTF("[queue] thread (%zu) aborted, notify all...\n", get_id());
+        //LK_PRINTF("[queue] thread (%zu) aborted, notify all...\n", get_id());
         signal_.notify_all();
     }
     std::condition_variable signal_;
@@ -43,28 +43,66 @@ struct ThreadedQueue
     bool aborted_;
 };
 
+template<typename F, typename ... Args>
+struct Invoker
+{
+    Invoker(F&& f, Args&& ... args)
+        : f_(std::forward<F>(f))
+        , t_(std::forward<Args>(args)...)
+    {
+    }
+
+    auto operator()() const
+    {
+        return expand(std::make_index_sequence<sizeof...(Args)>());
+    }
+
+private:
+    template<std::size_t ... Index>
+    auto expand(std::index_sequence<Index...>) const
+    {
+        return f_(std::get<Index>(t_)...);
+    }
+
+    F f_;
+    std::tuple<
+        typename std::decay<Args>::type ...
+    > t_;
+};
+
 struct Runable
 {
     using PtrT = std::unique_ptr<Runable>;
     virtual void operator()() = 0; /* TODO */
+    virtual ~Runable() {}
 };
 
-template <typename R, typename ... Args>
-struct Task : Runable
+template<typename R>
+struct PromiseInvoker : Runable
 {
-    Task(std::function<R(Args...)> f, Args... args)
-        : lambda_([f, args...](std::promise<R>& p) { p.set_value(f(args...)); })
+    template<typename F, typename ... Args>
+    PromiseInvoker(F&& f, Args&& ... args)
+        : f_(Invoker<F, Args...>(std::forward<F>(f), std::forward<Args>(args)...))
     { }
+
+    std::future<R> get_future() { return p_.get_future(); }
 
     virtual void operator()()
     {
-        lambda_(p_);
+        try {
+            p_.set_value(f_());
+        }
+        catch (...)
+        {
+            p_.set_exception(std::current_exception());
+        }
     }
 
 private:
-    std::function<void(std::promise<R>&)> lambda_;
     std::promise<R> p_;
+    std::function<R()> f_;
 };
+
 
 using std::this_thread::get_id;
 struct WorkerThread
@@ -76,15 +114,15 @@ struct WorkerThread
     {
         while(!aborted_)
         {
-            LK_PRINTF("[Worker] thread (%zu) enter queue::get block\n", get_id());
+            //LK_PRINTF("[Worker] thread (%zu) enter queue::get block\n", get_id());
             Runable::PtrT pTask;
             if (task_queue_.get(pTask))
             {
                 (*pTask)();
             }
-            LK_PRINTF("[Worker] thread (%zu) out of queue::get block\n", get_id());
+            //LK_PRINTF("[Worker] thread (%zu) out of queue::get block\n", get_id());
         }
-        LK_PRINTF("[Worker] thread (%zu) down\n", get_id());
+        //LK_PRINTF("[Worker] thread (%zu) down\n", get_id());
     }
 
 private:
@@ -108,29 +146,35 @@ struct ThreadPool
         abort();
     }
 
-    void put(Runable::PtrT pTask)
+    template<typename F, typename ... Args>
+    std::future< typename std::result_of<F(Args...)>::type > put(F&& func, Args&& ... args)
     {
-        task_queue_.put(std::move(pTask));
+        using R = typename std::result_of<F(Args...)>::type;
+
+        std::unique_ptr<PromiseInvoker<R>> p(new PromiseInvoker<R>(std::forward<F>(func), std::forward<Args>(args)...));
+        std::future<R> fu = p->get_future();
+        task_queue_.put(std::move(p));
+        return std::move(fu);
     }
 
     void abort()
     {
-        LK_PRINTF("[Pool] aborting  %zu threads\n", thread_pool_.size());
+        //LK_PRINTF("[Pool] aborting  %zu threads\n", thread_pool_.size());
         aborted_ = true;
         task_queue_.abort();
         for (auto& t : thread_pool_)
         {
             if (t.joinable())
             {
-                LK_PRINTF("[Pool] join thread %zu\n", t.get_id());
+                //LK_PRINTF("[Pool] join thread %zu\n", t.get_id());
                 t.join();
             }
             else
             {
-                LK_PRINTF("[Pool] thread %zu is not joinable\n", t.get_id());
+                //LK_PRINTF("[Pool] thread %zu is not joinable\n", t.get_id());
             }
         }
-        LK_PRINTF("[Pool] aborted...\n");
+        //LK_PRINTF("[Pool] aborted...\n");
     }
 private:
     std::vector<std::thread> thread_pool_;
