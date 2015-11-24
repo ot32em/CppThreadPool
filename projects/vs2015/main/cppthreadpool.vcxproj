@@ -119,6 +119,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="..\..\..\README.md" />
+    <None Include="..\..\..\todo.md" />
     <None Include="..\..\.gitignore" />
   </ItemGroup>
   <ItemGroup>
