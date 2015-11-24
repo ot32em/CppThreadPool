@@ -19,11 +19,11 @@ Your functions
 ```cpp
 int add2(int, int);
 Report make_report(std::string);
-size_t thread_count = 5;
 ```
 
 Dispatch it
 ```cpp
+size_t thread_count = 5;
 ThreadPool pool(thread_count);
 std::future<int> answer = pool.put(add2, 1, 2);
 std::future<Report> report = pool.put(make_report, "Author Name");
