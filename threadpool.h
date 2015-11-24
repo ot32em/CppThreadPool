@@ -104,7 +104,6 @@ private:
 };
 
 
-using std::this_thread::get_id;
 struct WorkerThread
 {
     WorkerThread(ThreadedQueue<Runable::PtrT>& task_queue, bool& aborted)
