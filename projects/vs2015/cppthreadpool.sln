@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cppthreadpool", "main\cppthreadpool.vcxproj", "{18A10A8F-1376-4ABA-8B43-0026F1DB5E75}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcxproj", "{5816C126-035D-4341-9EFC-3E02C6BE6E28}"
+	ProjectSection(ProjectDependencies) = postProject
+		{18A10A8F-1376-4ABA-8B43-0026F1DB5E75} = {18A10A8F-1376-4ABA-8B43-0026F1DB5E75}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
