@@ -121,6 +121,7 @@
     <ClCompile Include="..\..\..\client_main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\README.md" />
     <None Include="..\..\.gitignore" />
   </ItemGroup>
   <ItemGroup>
