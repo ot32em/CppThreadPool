@@ -46,6 +46,7 @@ struct ThreadedQueue
 template<typename F, typename ... Args>
 struct Invoker
 {
+
     Invoker(F&& f, Args&& ... args)
         : f_(std::forward<F>(f))
         , t_(std::forward<Args>(args)...)
@@ -68,7 +69,16 @@ private:
     std::tuple<
         typename std::decay<Args>::type ...
     > t_;
+
+public:
+    using TupleT = decltype(t_);
 };
+
+template<typename F, typename ... Args>
+auto make_invoker(F&& f, Args&&... args)
+{
+    return Invoker<F, Args...>(std::forward<F>(f), std::forward<Args>(args)...);
+}
 
 struct Runable
 {
