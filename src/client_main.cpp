@@ -24,7 +24,6 @@ int main()
     ThreadPool pool(5);
     for (int i = 0; i < sizeof primes / sizeof primes[0]; i++)
     {
-        /* TODO: auto deduce types of passing function */
         fs.push_back(pool.put(add2, i, 100 * primes[i], primes[i], i));
     }
     for (auto& f : fs)

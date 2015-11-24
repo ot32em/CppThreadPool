@@ -118,15 +118,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\client_main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\..\README.md" />
     <None Include="..\..\.gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\threadpool.h" />
-    <ClInclude Include="..\..\..\utility.h" />
+    <ClInclude Include="..\..\..\src\threadpool.h" />
+    <ClInclude Include="..\..\..\src\utility.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\client_main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
