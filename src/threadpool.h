@@ -53,16 +53,16 @@ struct Invoker
     {
     }
 
-    auto operator()() const
+    auto operator()()
     {
         return expand(std::make_index_sequence<sizeof...(Args)>());
     }
 
 private:
     template<std::size_t ... Index>
-    auto expand(std::index_sequence<Index...>) const
+    auto expand(std::index_sequence<Index...>)
     {
-        return f_(std::get<Index>(t_)...);
+        return f_( std::move(std::get<Index>(t_))...);
     }
 
     F f_;
