@@ -1,9 +1,9 @@
 # CppThreadPool
-Using c++11 thread library to implement thread pool
 
 ## Features
-- Typesafe adding new Task for any function signature.
-- std::future<R> is returned after added new Task.
+- Task accepts any function signatures with **Typesafe**.
+- Result is **promised** as `std::future<R>` while added Task into pool.
+- Header-only library. Just include "threadpool.h".
 
 ### Task adding function signature
 
