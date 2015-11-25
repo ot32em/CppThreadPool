@@ -15,22 +15,20 @@ ThreadPool::put(F&& func, Args&& ... args);
 
 ## Usage
 
-0. Your own functions
+ - 0) Your own functions
 ```cpp
 int add2(int, int);
 Report make_report(std::string);
 ```
-
-1. Assign as task to pool.
+ - 1) Assign as task to pool.
 ```cpp
 size_t thread_count = 5;
 ThreadPool pool(thread_count);
-std::future<int> answer = pool.put(add2, 1, 2);
-std::future<Report> report = pool.put(make_report, "Author Name");
+std::future<int> promised_answer = pool.put(add2, 1, 2);
+std::future<Report> promised_report = pool.put(make_report, "Author Name");
 ```
-
-2. Sync the result from threads if needed
+ - 2) Sync the result from threads if needed
 ```cpp
-answer.get();
-report.get();
+int answer = promised_answer.get();
+Report report = promised_report.get();
 ```
