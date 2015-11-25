@@ -11,3 +11,5 @@
 *.sdf
 *.iobj
 *.ipdb
+*.lnk
+*.user
