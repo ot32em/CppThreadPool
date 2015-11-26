@@ -46,48 +46,53 @@ struct ObservedObject
     Observer& obs_;
 };
 
-TEST_CASE("invoker create, arguments are copied by value", "[invoker]") 
+TEST_CASE("invoker arguments move and copy", "[invoker]")
 {
-    auto funcByValue = [](ObservedObject) {};
-    Observer obs;
-    ObservedObject obj(obs);
-    auto invoker = make_invoker(funcByValue, obj);
-    REQUIRE(obs.copied_times() == 1);
-    REQUIRE(obs.moved_times() == 0);
-}
+    SECTION("arguments will be copied when creating invoker from values")
+    {
+        auto funcByValue = [](ObservedObject) {};
+        Observer obs;
+        ObservedObject obj(obs);
+        auto invoker = make_invoker(funcByValue, obj);
+        REQUIRE(obs.copied_times() == 1);
+        REQUIRE(obs.moved_times() == 0);
+    }
 
-TEST_CASE("invoker create, arguments are moved to create if std::move", "[invoker]")
-{
-    auto funcByValue = [](ObservedObject) {};
-    Observer obs;
-    ObservedObject obj(obs);
-    auto invoker = make_invoker(funcByValue, std::move(obj));
-    REQUIRE(obs.copied_times() == 0);
-    REQUIRE(obs.moved_times() == 1);
-}
+    SECTION("arguments will be moved when creating invoker from moved values")
+    {
+        auto funcByValue = [](ObservedObject) {};
+        Observer obs;
+        ObservedObject obj(obs);
+        auto invoker = make_invoker(funcByValue, std::move(obj));
+        REQUIRE(obs.copied_times() == 0);
+        REQUIRE(obs.moved_times() == 1);
+    }
 
-TEST_CASE("invoker call, arguments are moved to call", "[invoker]") 
-{
-    auto funcByValue = [](ObservedObject) {};
-    Observer obs;
-    ObservedObject obj(obs);
-    auto invoker = make_invoker(funcByValue, obj);
-    auto m = obs.moved_times();
-    auto c = obs.copied_times();
-    invoker();
-    auto m_times = obs.moved_times() - m;
-    auto c_times = obs.copied_times() - c;
-    REQUIRE(m_times == 1);
-    REQUIRE(c_times == 0);
+    SECTION("arguments will be moved when invoking the underlying function")
+    {
+        auto funcByValue = [](ObservedObject) {};
+        Observer obs;
+        ObservedObject obj(obs);
+        auto invoker = make_invoker(funcByValue, obj);
+        auto m = obs.moved_times();
+        auto c = obs.copied_times();
+        invoker();
+        auto m_times = obs.moved_times() - m;
+        auto c_times = obs.copied_times() - c;
+        REQUIRE(m_times == 1);
+        REQUIRE(c_times == 0);
+    }
 }
 
 TEST_CASE("invoker call, return the right value", "[invoker]")
 {
+    SECTION("built-tin type")
     {
         auto add2 = [](int a, int b) { return a + b; };
         auto invoker = make_invoker(add2, 1, 2);
         REQUIRE(invoker() == add2(1, 2));
     }
+    SECTION("complex type")
     {
         auto concat = [](std::string a, std::string b) { return a + b; };
         auto invoker = make_invoker(concat, "Hello ", "World");
