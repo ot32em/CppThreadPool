@@ -139,7 +139,7 @@ struct ThreadPool
 
         std::unique_ptr<PromiseInvoker<R>> p(new PromiseInvoker<R>(std::forward<F>(func), std::forward<Args>(args)...));
         std::future<R> fu = p->get_future();
-        task_queue_.put(std::move(p));
+        task_queue_.put(std::move(p));        
         return std::move(fu);
     }
 
