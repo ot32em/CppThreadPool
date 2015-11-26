@@ -51,11 +51,16 @@ struct Invoker
     Invoker(F&& f, Args&& ... args)
         : f_(std::forward<F>(f))
         , t_(std::forward<Args>(args)...)
+        , called_(false)
     {
     }
 
     auto operator()()
     {
+        if (called_) {
+            throw invoker_only_call_once();
+        }
+        called_ = true;
         return expand(std::make_index_sequence<sizeof...(Args)>());
     }
 
@@ -70,6 +75,7 @@ private:
     std::tuple<
         typename std::decay<Args>::type ...
     > t_;
+    bool called_ = false;
 
 public:
     using TupleT = decltype(t_);
