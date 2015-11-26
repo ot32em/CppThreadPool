@@ -52,12 +52,12 @@ struct Runable
 };
 
 template<typename R>
-void complete_promise(std::promise<R>& p, std::function<R()>& f)
+inline void complete_promise(std::promise<R>& p, std::function<R()>& f)
 {
     p.set_value(f());
 }
 template<>
-void complete_promise<void>(std::promise<void>& p, std::function<void()>& f)
+inline void complete_promise<void>(std::promise<void>& p, std::function<void()>& f)
 {
     f();
     p.set_value();
