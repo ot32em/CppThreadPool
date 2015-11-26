@@ -123,6 +123,7 @@
     <None Include="..\..\.gitignore" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\invoker.h" />
     <ClInclude Include="..\..\..\src\threadpool.h" />
     <ClInclude Include="..\..\..\src\utility.h" />
   </ItemGroup>
