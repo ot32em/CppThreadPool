@@ -76,9 +76,6 @@ private:
         typename std::decay<Args>::type ...
     > t_;
     bool called_ = false;
-
-public:
-    using TupleT = decltype(t_);
 };
 
 template<typename F, typename ... Args>
@@ -119,7 +116,6 @@ private:
     std::promise<R> p_;
     std::function<R()> f_;
 };
-
 
 struct WorkerThread
 {
