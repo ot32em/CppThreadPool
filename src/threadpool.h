@@ -43,10 +43,11 @@ struct ThreadedQueue
     bool aborted_;
 };
 
+struct invoker_only_call_once : std::exception {};
+
 template<typename F, typename ... Args>
 struct Invoker
 {
-
     Invoker(F&& f, Args&& ... args)
         : f_(std::forward<F>(f))
         , t_(std::forward<Args>(args)...)

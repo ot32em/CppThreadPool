@@ -117,3 +117,12 @@ TEST_CASE("invoker call, actually affected by reference", "[invoker]")
         REQUIRE(a == "Hello World");
     }
 }
+
+TEST_CASE("invoker call, only once", "[invoker]")
+{
+    auto func = []() {};
+    auto invoker = make_invoker(func);
+    REQUIRE_NOTHROW(invoker());
+
+    REQUIRE_THROWS_AS(invoker(), invoker_only_call_once);
+}
