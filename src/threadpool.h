@@ -52,6 +52,18 @@ struct Runable
 };
 
 template<typename R>
+void complete_promise(std::promise<R>& p, std::function<R()>& f)
+{
+    p.set_value(f());
+}
+template<>
+void complete_promise<void>(std::promise<void>& p, std::function<void()>& f)
+{
+    f();
+    p.set_value();
+}
+
+template<typename R>
 struct PromiseInvoker : Runable
 {
     template<typename F, typename ... Args>
@@ -64,7 +76,7 @@ struct PromiseInvoker : Runable
     virtual void operator()()
     {
         try {
-            p_.set_value(f_());
+            complete_promise<R>(p_, f_);
         }
         catch (...)
         {
@@ -76,6 +88,8 @@ private:
     std::promise<R> p_;
     std::function<R()> f_;
 };
+
+
 
 struct WorkerThread
 {
